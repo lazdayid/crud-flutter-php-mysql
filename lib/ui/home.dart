@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_crud/model/note_model.dart';
+import 'package:flutter_crud/model/submit_model.dart';
 import 'package:flutter_crud/ui/create.dart';
 import 'package:flutter_crud/ui/update.dart';
-import 'package:flutter_crud/util/api_service.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_crud/util/const.dart' as url;
+import 'package:flutter_crud/util/string_util.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -17,7 +17,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   List<NoteModel> notes = [];
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -54,8 +53,8 @@ class _HomeState extends State<Home> {
                     ),
                     child: InkWell(
                       child: Padding (
-                        padding: EdgeInsets.all(10),
-                        child: Text( notes[position].note ),
+                        padding: EdgeInsets.all(15),
+                        child: Text( notes[position].note, style: TextStyle(fontSize: 16 ), ),
                       ),
                       onTap: (){
                         Navigator.push(
@@ -82,25 +81,26 @@ class _HomeState extends State<Home> {
   }
 
   getNote() async {
-    var response = await api("data.php");
+    var request = await http.get("${StringUtil.baseUrl}data.php");
+    var response = json.decode( request.body );
     var data = (response['notes'] as List)
         .map((notes) => NoteModel.fromJson(notes)).toList();
     data.forEach((element) { print(element.note); });
     setState(() {
       notes = data;
     });
-    _refreshController.refreshCompleted();
   }
 
   deleteNote(String id) async {
     final request = await http.post(
-        "${url.Const.baseUrl}delete.php",
+        "${StringUtil.baseUrl}delete.php",
         body: {
           "id": id
         }
     );
     var response = json.decode( request.body );
-    print("response $response");
+    var submit = SubmitModel.fromJson(response);
+    Fluttertoast.showToast(msg: submit.message);
     getNote();
   }
 }

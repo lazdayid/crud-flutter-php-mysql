@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_crud/model/submit_model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_crud/util/const.dart' as url;
+import 'package:flutter_crud/util/string_util.dart';
 
 class Create extends StatefulWidget {
   @override
@@ -16,7 +18,7 @@ class _CreateState extends State<Create> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Add Note")),
+      appBar: AppBar(title: Text("Note")),
       body: Container (
         margin: EdgeInsets.all(10),
         child: Column(
@@ -51,13 +53,14 @@ class _CreateState extends State<Create> {
 
   addNote(String note) async {
     final request = await http.post(
-        "${url.Const.baseUrl}create.php",
+        "${StringUtil.baseUrl}create.php",
         body: {
           "note": note
         }
     );
     var response = json.decode( request.body );
-    print("response $response");
+    var submit = SubmitModel.fromJson(response);
+    Fluttertoast.showToast(msg: submit.message);
     Navigator.of(context).pop(true);
   }
 }
