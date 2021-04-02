@@ -1,17 +1,24 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_crud/model/note_model.dart';
 import 'package:flutter_crud/model/submit_model.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_crud/util/string_util.dart';
 
-class Update extends StatelessWidget {
+class Update extends StatefulWidget {
 
-  String id;
-  String note;
+  NoteModel data;
+  Update(this.data);
 
-  Update(this.id, this.note);
+  @override
+  _UpdateState createState() => _UpdateState();
+}
+
+class _UpdateState extends State<Update> {
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +29,7 @@ class Update extends StatelessWidget {
         child: Column(
           children: [
             TextFormField(
-              initialValue: note,
+              initialValue: widget.data.note,
               decoration: InputDecoration (
                 border: InputBorder.none,
                 hintText: 'Tulis catatan..',
@@ -30,18 +37,18 @@ class Update extends StatelessWidget {
               minLines: 3,
               maxLines: 5,
               onChanged: (String text){
-                note = text;
+                widget.data.note = text;
               },
             ),
             MaterialButton(
-                color: Colors.blue,
+                color: isLoading ? Colors.grey : Colors.blue,
                 minWidth: 200,
                 shape: RoundedRectangleBorder (
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text('Simpan Perubahan', style: TextStyle (color: Colors.white),),
+                child: Text(isLoading ? 'Menyimpan Perubahan..' : 'Simpan Perubahan', style: TextStyle (color: Colors.white),),
                 onPressed: () {
-                  updateNote( context, id, note);
+                  updateNote( context );
                 }
             )
           ],
@@ -50,17 +57,22 @@ class Update extends StatelessWidget {
     );
   }
 
-  updateNote(BuildContext context, String id, String note) async {
-    final request = await http.put(
+  updateNote(BuildContext context) async {
+
+    final response = await http.put(
         "${StringUtil.baseUrl}update.php",
         body: {
-          "id": id,
-          "note": note
+          "id": widget.data.id,
+          "note": widget.data.note
         }
     );
-    var response = json.decode( request.body );
-    var submit = SubmitModel.fromJson(response);
-    Fluttertoast.showToast(msg: submit.message);
-    Navigator.of(context).pop(true);
+
+    if (response.statusCode == 200) {
+      var submit = SubmitModel.fromJson( jsonDecode( response.body ) );
+      Fluttertoast.showToast(msg: submit.message);
+      Navigator.of(context).pop(true);
+    } else Fluttertoast.showToast(msg: "Terjadi kesalahan");
+
   }
+
 }

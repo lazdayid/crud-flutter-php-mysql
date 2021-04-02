@@ -14,6 +14,7 @@ class Create extends StatefulWidget {
 class _CreateState extends State<Create> {
 
   String note = "";
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +36,17 @@ class _CreateState extends State<Create> {
               },
             ),
             MaterialButton(
-                color: Colors.blue,
+                color: isLoading ? Colors.grey : Colors.blue,
                 minWidth: 200,
                 shape: RoundedRectangleBorder (
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text('Simpan', style: TextStyle (color: Colors.white),),
+                child: Text( isLoading ? 'Menyimpan..' : 'Simpan' , style: TextStyle (color: Colors.white),),
                 onPressed: () {
                   addNote( note );
+                  setState(() {
+                    isLoading = true;
+                  });
                 }
             )
           ],
@@ -52,15 +56,18 @@ class _CreateState extends State<Create> {
   }
 
   addNote(String note) async {
-    final request = await http.post(
+
+    final response = await http.post(
         "${StringUtil.baseUrl}create.php",
         body: {
           "note": note
         }
     );
-    var response = json.decode( request.body );
-    var submit = SubmitModel.fromJson(response);
-    Fluttertoast.showToast(msg: submit.message);
-    Navigator.of(context).pop(true);
+
+    if (response.statusCode == 200) {
+      var submit = SubmitModel.fromJson( jsonDecode( response.body ) );
+      Fluttertoast.showToast(msg: submit.message);
+      Navigator.of(context).pop(true);
+    } else Fluttertoast.showToast(msg: "Terjadi kesalahan");
   }
 }
