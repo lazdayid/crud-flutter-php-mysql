@@ -44,9 +44,6 @@ class _CreateState extends State<Create> {
                 child: Text( isLoading ? 'Menyimpan..' : 'Simpan' , style: TextStyle (color: Colors.white),),
                 onPressed: () {
                   addNote( note );
-                  setState(() {
-                    isLoading = true;
-                  });
                 }
             )
           ],
@@ -56,6 +53,8 @@ class _CreateState extends State<Create> {
   }
 
   addNote(String note) async {
+
+    setState(() => isLoading = true );
 
     final response = await http.post(
         "${StringUtil.baseUrl}create.php",

@@ -59,6 +59,8 @@ class _UpdateState extends State<Update> {
 
   updateNote(BuildContext context) async {
 
+    setState(() => isLoading = true );
+
     final response = await http.put(
         "${StringUtil.baseUrl}update.php",
         body: {
