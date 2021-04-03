@@ -5,7 +5,7 @@ import 'package:flutter_crud/model/note_model.dart';
 import 'package:flutter_crud/model/submit_model.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_crud/util/string_util.dart';
+import 'package:flutter_crud/util/api_util.dart';
 
 class Update extends StatefulWidget {
 
@@ -60,9 +60,8 @@ class _UpdateState extends State<Update> {
   updateNote(BuildContext context) async {
 
     setState(() => isLoading = true );
-
     final response = await http.put(
-        "${StringUtil.baseUrl}update.php",
+        ApiUtil.baseUrl("update.php"),
         body: {
           "id": widget.data.id,
           "note": widget.data.note

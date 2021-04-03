@@ -7,7 +7,7 @@ import 'package:flutter_crud/ui/create.dart';
 import 'package:flutter_crud/ui/update.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_crud/util/string_util.dart';
+import 'package:flutter_crud/util/api_util.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -95,7 +95,7 @@ class _HomeState extends State<Home> {
 
   listNote() async {
     setState(() => isLoading = true );
-    var response = await http.get("${StringUtil.baseUrl}data.php");
+    var response = await http.get( ApiUtil.baseUrl("data.php") );
     if (response.statusCode == 200) {
       var result = ResultModel.fromJson( jsonDecode( response.body ) );
       print("notes ${result.notes.toString()}");
@@ -108,7 +108,7 @@ class _HomeState extends State<Home> {
 
   deleteNote(String id) async {
     final response = await http.post(
-        "${StringUtil.baseUrl}delete.php",
+        ApiUtil.baseUrl("delete.php"),
         body: {
           "id": id
         }

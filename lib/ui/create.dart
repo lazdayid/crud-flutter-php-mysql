@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_crud/model/submit_model.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_crud/util/string_util.dart';
+import 'package:flutter_crud/util/api_util.dart';
 
 class Create extends StatefulWidget {
   @override
@@ -57,7 +57,7 @@ class _CreateState extends State<Create> {
     setState(() => isLoading = true );
 
     final response = await http.post(
-        "${StringUtil.baseUrl}create.php",
+        ApiUtil.baseUrl("create.php"),
         body: {
           "note": note
         }
